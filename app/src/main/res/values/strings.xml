@@ -1,0 +1,136 @@
+<resources>
+    <string name="app_name">ONE</string>
+    <string name="app_tagline">Smart Payment &amp; Payment Planning App</string>
+    <string name="good_morning">Good morning</string>
+    <string name="good_afternoon">Good afternoon</string>
+    <string name="good_evening">Good evening</string>
+
+    <!-- Navigation & Core Actions -->
+    <string name="action_scan_pay">Scan &amp; Pay</string>
+    <string name="action_send_money">Send Money</string>
+    <string name="action_request_money">Request Money</string>
+    <string name="action_my_accounts">My Bank Accounts</string>
+    <string name="action_history">Transaction History</string>
+    <string name="action_calculator">Charge Calculator</string>
+    <string name="action_planner">Smart Planner</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Send Money Methods -->
+    <string name="send_via_qr">Scan QR</string>
+    <string name="send_via_upi">UPI ID</string>
+    <string name="send_via_mobile">Mobile Number</string>
+    <string name="send_via_bank">Bank Account</string>
+
+    <!-- Bank Accounts -->
+    <string name="bank_accounts_title">My Bank Accounts</string>
+    <string name="add_bank_account">+ Add Bank Account</string>
+    <string name="default_account_badge">Default</string>
+    <string name="set_as_default">Set as Default</string>
+    <string name="unlink_account">Unlink Account</string>
+    <string name="refresh_balance">Check Balance</string>
+    <string name="pay_from">PAY FROM</string>
+    <string name="bank_security_promise">ONE never stores or asks for UPI PIN, Debit Card PIN, or Bank Passwords. Authentication occurs strictly via official banking channels.</string>
+
+    <!-- Payment Flows -->
+    <string name="enter_upi_id">Enter UPI ID</string>
+    <string name="enter_mobile_number">Enter Mobile Number</string>
+    <string name="enter_account_number">Bank Account Number</string>
+    <string name="enter_ifsc">Bank IFSC Code</string>
+    <string name="recipient_name">Recipient Name</string>
+    <string name="verify_recipient">Verify</string>
+    <string name="enter_amount">Enter Amount (₹)</string>
+    <string name="add_note">Add a note (optional)</string>
+    <string name="continue_action">Continue</string>
+    <string name="review_payment">Review Payment</string>
+    <string name="confirm_and_pay">Confirm &amp; Pay</string>
+    <string name="paying_to">Paying to</string>
+    <string name="payment_source">Payment Source</string>
+    <string name="transaction_fee">Applicable Fee</string>
+    <string name="total_payable">Total Payable</string>
+    <string name="official_auth_dialog_title">Official UPI PSP Authorization</string>
+    <string name="official_auth_dialog_desc">Authorizing transaction via NPCI / Bank secure payment gateway. Never share your credentials with anyone.</string>
+
+    <!-- Transaction Statuses -->
+    <string name="status_success">SUCCESS</string>
+    <string name="status_pending">PENDING</string>
+    <string name="status_failed">FAILED</string>
+    <string name="status_cancelled">CANCELLED</string>
+    <string name="status_refunded">REFUNDED</string>
+    <string name="status_unknown">VERIFICATION REQUIRED</string>
+    <string name="status_uncertain_warning">Your previous payment status could not be confirmed. Please check your transaction history before trying again.</string>
+    <string name="view_receipt">View Receipt</string>
+    <string name="done">Done</string>
+
+    <!-- Smart Payment Planner -->
+    <string name="planner_title">Smart Payment Planner</string>
+    <string name="planner_desc">Plan legitimate split payment schedules across your linked bank accounts or milestones according to configured provider limits.</string>
+    <string name="planner_disclaimer">Splitting a payment does not guarantee that applicable charges will be avoided. Every transaction must follow official provider rules and requires explicit user authorization.</string>
+    <string name="total_amount_to_plan">Total Amount to Plan (₹)</string>
+    <string name="calculate_plan">Generate Plan</string>
+    <string name="planned_splits">Planned Transactions</string>
+
+    <!-- Charge Calculator -->
+    <string name="calculator_title">UPI Charge &amp; MDR Calculator</string>
+    <string name="calculator_desc">Calculate regulatory MDR &amp; processing charges based on merchant categories and payment instruments.</string>
+    <string name="calculator_disclaimer">MDR (Merchant Discount Rate) is not a customer tax; it is an interchange/processing fee established under official payment regulatory guidelines.</string>
+    <string name="select_merchant_category">Merchant Category</string>
+    <string name="select_payment_instrument">Payment Instrument</string>
+    <string name="applicable_mdr">Applicable MDR</string>
+    <string name="gst_rate">GST (18% on fee)</string>
+    <string name="max_cap">Maximum Cap</string>
+    <string name="customer_payable">Customer Payable Amount</string>
+
+    <!-- Request & Receive Money -->
+    <string name="receive_money_title">Receive Money</string>
+    <string name="your_upi_id">Your UPI ID</string>
+    <string name="qr_code_label">Personal Payment QR</string>
+    <string name="share_payment_request">Share Payment Request</string>
+    <string name="set_custom_amount">Set Custom Amount</string>
+
+    <!-- History -->
+    <string name="history_title">Transaction History</string>
+    <string name="search_transactions">Search by name, UPI ID, or UTR…</string>
+    <string name="tab_all">All</string>
+    <string name="tab_sent">Sent</string>
+    <string name="tab_received">Received</string>
+    <string name="tab_pending">Pending</string>
+    <string name="tab_failed">Failed</string>
+    <string name="tab_refunded">Refunded</string>
+    <string name="no_transactions_found">No transactions found</string>
+
+    <!-- Auth & Account -->
+    <string name="auth_title">Welcome to ONE</string>
+    <string name="auth_subtitle">Simple, trustworthy &amp; compliant digital payments</string>
+    <string name="mobile_sign_in">Mobile Number</string>
+    <string name="email_sign_in">Email &amp; Password</string>
+    <string name="google_sign_in">Continue with Google</string>
+    <string name="enter_otp">Enter 6-Digit OTP</string>
+    <string name="verify_otp">Verify &amp; Sign In</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="sign_up">Create Account</string>
+    <string name="sign_in">Sign In</string>
+    <string name="log_out">Log Out</string>
+    <string name="logout_all">Log Out From All Devices</string>
+
+    <!-- Settings & Security -->
+    <string name="settings_title">Settings &amp; Security</string>
+    <string name="profile">Profile</string>
+    <string name="biometric_lock">Biometric / Screen Lock</string>
+    <string name="biometric_lock_desc">Require fingerprint or face unlock before opening ONE or reviewing payments</string>
+    <string name="language_selection">Language / भाषा</string>
+    <string name="theme_selection">Theme</string>
+    <string name="active_sessions">Active Device Sessions</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="about_one">About ONE</string>
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="wipe_local_data">Wipe Local App Data</string>
+
+    <!-- Accessibility -->
+    <string name="cd_back">Back</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_qr_code">QR Code</string>
+    <string name="cd_copy">Copy</string>
+    <string name="cd_share">Share</string>
+    <string name="cd_status_icon">Transaction Status Icon</string>
+</resources>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ONE</string>
+    <string name="app_tagline">स्मार्ट भुगतान और भुगतान योजना ऐप</string>
+    <string name="good_morning">शुभ प्रभात</string>
+    <string name="good_afternoon">शुभ दोपहर</string>
+    <string name="good_evening">शुभ संध्या</string>
+
+    <!-- Navigation & Core Actions -->
+    <string name="action_scan_pay">स्कैन और भुगतान</string>
+    <string name="action_send_money">पैसे भेजें</string>
+    <string name="action_request_money">पैसे का अनुरोध</string>
+    <string name="action_my_accounts">मेरे बैंक खाते</string>
+    <string name="action_history">लेनदेन इतिहास</string>
+    <string name="action_calculator">शुल्क कैलकुलेटर</string>
+    <string name="action_planner">स्मार्ट प्लानर</string>
+    <string name="action_settings">सेटिंग्स</string>
+
+    <!-- Send Money Methods -->
+    <string name="send_via_qr">QR स्कैन करें</string>
+    <string name="send_via_upi">UPI ID</string>
+    <string name="send_via_mobile">मोबाइल नंबर</string>
+    <string name="send_via_bank">बैंक खाता</string>
+
+    <!-- Bank Accounts -->
+    <string name="bank_accounts_title">मेरे बैंक खाते</string>
+    <string name="add_bank_account">+ बैंक खाता जोड़ें</string>
+    <string name="default_account_badge">डिफ़ॉल्ट</string>
+    <string name="set_as_default">डिफ़ॉल्ट बनाएं</string>
+    <string name="unlink_account">खाता हटाएं</string>
+    <string name="refresh_balance">बैलेंस देखें</string>
+    <string name="pay_from">भुगतान खाता चुनें</string>
+    <string name="bank_security_promise">ONE कभी भी आपका UPI पिन, डेबिट कार्ड पिन या बैंक पासवर्ड नहीं मांगता या सहेजता।</string>
+
+    <!-- Payment Flows -->
+    <string name="enter_upi_id">UPI ID दर्ज करें</string>
+    <string name="enter_mobile_number">मोबाइल नंबर दर्ज करें</string>
+    <string name="enter_account_number">बैंक खाता संख्या</string>
+    <string name="enter_ifsc">IFSC कोड</string>
+    <string name="recipient_name">प्राप्तकर्ता का नाम</string>
+    <string name="verify_recipient">सत्यापित करें</string>
+    <string name="enter_amount">राशि दर्ज करें (₹)</string>
+    <string name="add_note">नोट जोड़ें (वैकल्पिक)</string>
+    <string name="continue_action">आगे बढ़ें</string>
+    <string name="review_payment">भुगतान समीक्षा</string>
+    <string name="confirm_and_pay">पुष्टि करें और भुगतान करें</string>
+    <string name="paying_to">भुगतान किया जा रहा है</string>
+    <string name="payment_source">भुगतान स्रोत</string>
+    <string name="transaction_fee">लागू शुल्क</string>
+    <string name="total_payable">कुल देय राशि</string>
+    <string name="official_auth_dialog_title">आधिकारिक UPI प्रमाणीकरण</string>
+    <string name="official_auth_dialog_desc">NPCI / बैंक सुरक्षित पेमेंट गेटवे द्वारा लेनदेन अधिकृत किया जा रहा है। अपने क्रेडेंशियल्स किसी के साथ साझा न करें।</string>
+
+    <!-- Transaction Statuses -->
+    <string name="status_success">सफल</string>
+    <string name="status_pending">लंबित</string>
+    <string name="status_failed">विफल</string>
+    <string name="status_cancelled">रद्द</string>
+    <string name="status_refunded">वापस (रिफंड)</string>
+    <string name="status_unknown">सत्यापन आवश्यक</string>
+    <string name="status_uncertain_warning">आपके पिछले भुगतान की स्थिति की पुष्टि नहीं हो सकी। कृपया दोबारा प्रयास करने से पहले अपना लेनदेन इतिहास जांचें।</string>
+    <string name="view_receipt">रसीद देखें</string>
+    <string name="done">पूर्ण</string>
+
+    <!-- Smart Payment Planner -->
+    <string name="planner_title">स्मार्ट भुगतान प्लानर</string>
+    <string name="planner_desc">अपने लिंक किए गए बैंक खातों में वैध विभाजन भुगतान योजना बनाएं।</string>
+    <string name="planner_disclaimer">भुगतान विभाजित करने से यह गारंटी नहीं होती कि लागू शुल्क से बचा जा सकेगा। प्रत्येक लेनदेन आधिकारिक नियमों का पालन करता है।</string>
+    <string name="total_amount_to_plan">कुल राशि (₹)</string>
+    <string name="calculate_plan">योजना बनाएं</string>
+    <string name="planned_splits">नियोजित लेनदेन</string>
+
+    <!-- Charge Calculator -->
+    <string name="calculator_title">UPI शुल्क और MDR कैलकुलेटर</string>
+    <string name="calculator_desc">व्यापारी श्रेणी और भुगतान माध्यम के अनुसार नियामक शुल्क की गणना करें।</string>
+    <string name="calculator_disclaimer">MDR कोई कर (Tax) नहीं है; यह एक आधिकारिक नियामक विनिमय शुल्क है।</string>
+    <string name="select_merchant_category">मर्चेंट श्रेणी</string>
+    <string name="select_payment_instrument">भुगतान साधन</string>
+    <string name="applicable_mdr">लागू MDR</string>
+    <string name="gst_rate">GST (18% शुल्क पर)</string>
+    <string name="max_cap">अधिकतम सीमा</string>
+    <string name="customer_payable">ग्राहक देय राशि</string>
+
+    <!-- Request & Receive Money -->
+    <string name="receive_money_title">पैसे प्राप्त करें</string>
+    <string name="your_upi_id">आपकी UPI ID</string>
+    <string name="qr_code_label">व्यक्तिगत भुगतान QR</string>
+    <string name="share_payment_request">भुगतान अनुरोध साझा करें</string>
+    <string name="set_custom_amount">कस्टम राशि निर्धारित करें</string>
+
+    <!-- History -->
+    <string name="history_title">लेनदेन इतिहास</string>
+    <string name="search_transactions">नाम, UPI ID, या UTR से खोजें…</string>
+    <string name="tab_all">सभी</string>
+    <string name="tab_sent">भेजे गए</string>
+    <string name="tab_received">प्राप्त हुए</string>
+    <string name="tab_pending">लंबित</string>
+    <string name="tab_failed">विफल</string>
+    <string name="tab_refunded">रिफंड</string>
+    <string name="no_transactions_found">कोई लेनदेन नहीं मिला</string>
+
+    <!-- Auth & Account -->
+    <string name="auth_title">ONE में आपका स्वागत है</string>
+    <string name="auth_subtitle">सरल, सुरक्षित और विश्वसनीय डिजिटल भुगतान</string>
+    <string name="mobile_sign_in">मोबाइल नंबर</string>
+    <string name="email_sign_in">ईमेल और पासवर्ड</string>
+    <string name="google_sign_in">Google के साथ जारी रखें</string>
+    <string name="enter_otp">6-अंकों का OTP दर्ज करें</string>
+    <string name="verify_otp">सत्यापित करें और लॉगिन करें</string>
+    <string name="forgot_password">पासवर्ड भूल गए?</string>
+    <string name="reset_password">पासवर्ड रीसेट करें</string>
+    <string name="sign_up">खाता बनाएं</string>
+    <string name="sign_in">साइन इन करें</string>
+    <string name="log_out">लॉग आउट</string>
+    <string name="logout_all">सभी उपकरणों से लॉग आउट करें</string>
+
+    <!-- Settings & Security -->
+    <string name="settings_title">सेटिंग्स और सुरक्षा</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="biometric_lock">बायोमेट्रिक / स्क्रीन लॉक</string>
+    <string name="biometric_lock_desc">ऐप खोलने या भुगतान करने से पहले फिंगरप्रिंट या स्क्रीन लॉक की आवश्यकता</string>
+    <string name="language_selection">भाषा / Language</string>
+    <string name="theme_selection">थीम</string>
+    <string name="active_sessions">सक्रिय डिवाइस सत्र</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="about_one">ONE के बारे में</string>
+    <string name="open_source_licenses">ओपन सोर्स लाइसेंस</string>
+    <string name="wipe_local_data">स्थानीय ऐप डेटा साफ़ करें</string>
+
+    <!-- Accessibility -->
+    <string name="cd_back">पीछे</string>
+    <string name="cd_close">बंद करें</string>
+    <string name="cd_qr_code">QR कोड</string>
+    <string name="cd_copy">कॉपी करें</string>
+    <string name="cd_share">साझा करें</string>
+    <string name="cd_status_icon">लेनदेन स्थिति आइकन</string>
+</resources>

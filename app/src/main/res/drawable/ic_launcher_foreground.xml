@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Hexagonal / Shield Security Boundary -->
+    <path
+        android:pathData="M54,23 L80,33 L80,57 C80,72 69,82 54,87 C39,82 28,72 28,57 L28,33 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="28"
+                android:startY="23"
+                android:endX="80"
+                android:endY="87"
+                android:type="linear">
+                <item android:color="#0284C7" android:offset="0.0" />
+                <item android:color="#059669" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Inner Shield Depth Accent -->
+    <path
+        android:pathData="M54,28 L75,37 L75,56 C75,68 66,77 54,81 C42,77 33,68 33,56 L33,37 Z"
+        android:fillColor="#0A192F" />
+
+    <!-- Bold Stylized "1" with Indian Rupee / Fintech Slash -->
+    <!-- Stem of "1" -->
+    <path
+        android:pathData="M50,40 L58,35 L58,69 L50,69 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Serif of "1" -->
+    <path
+        android:pathData="M43,44 L50,40 L50,48 L43,48 Z"
+        android:fillColor="#38BDF8" />
+
+    <!-- Rupee / Payment Speed Bar 1 -->
+    <path
+        android:pathData="M42,51 L66,51 L64,55 L40,55 Z"
+        android:fillColor="#34D399" />
+
+    <!-- Base of "1" -->
+    <path
+        android:pathData="M44,69 L64,69 L64,74 L44,74 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Small Spark of Innovation / Security -->
+    <path
+        android:pathData="M66,38 L68,42 L72,44 L68,46 L66,50 L64,46 L60,44 L64,42 Z"
+        android:fillColor="#FBBF24" />
+</vector>

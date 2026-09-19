@@ -1,0 +1,6 @@
+{
+  "name": "ONE",
+  "description": "Smart Payment & Payment Planning App",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
