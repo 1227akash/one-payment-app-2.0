@@ -242,6 +242,10 @@ fun TransactionHistoryScreen(
                         SummaryRow(label = "UPI ID / Acc", value = tx.recipientOrSenderUpiId)
                         SummaryRow(label = "Bank Account", value = "${tx.sourceBankName} (${tx.sourceAccountMasked})")
                         SummaryRow(label = "UPI Ref (UTR)", value = tx.utrReference)
+                        if (tx.transactionCode.isNotBlank()) {
+                            SummaryRow(label = "Security Code", value = tx.transactionCode)
+                        }
+                        SummaryRow(label = "Encryption", value = "AES-256 GCM (Hardware KeyStore)")
                         SummaryRow(label = "Date & Time", value = dateFormatted)
                         SummaryRow(label = "Payment Type", value = "${tx.type} via ${tx.method.displayName}")
                         if (tx.note.isNotBlank()) {

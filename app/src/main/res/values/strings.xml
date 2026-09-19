@@ -133,4 +133,18 @@
     <string name="cd_copy">Copy</string>
     <string name="cd_share">Share</string>
     <string name="cd_status_icon">Transaction Status Icon</string>
+
+    <!-- Security, Codes & E2EE -->
+    <string name="payment_security_code_title">Payment Security Code (Transaction PIN)</string>
+    <string name="payment_security_code_desc">6-digit cryptographic PIN used to authorize real money transfers with hardware-backed AES-256 GCM encryption</string>
+    <string name="set_payment_pin">Set Payment Security Code</string>
+    <string name="change_payment_pin">Change Payment Security Code</string>
+    <string name="enter_payment_pin">Enter 6-Digit Payment Security Code</string>
+    <string name="pin_encrypted_tag">256-bit AES-GCM Encrypted</string>
+    <string name="pin_must_be_6_digits">Payment Security Code must be exactly 6 digits</string>
+    <string name="pin_incorrect">Incorrect Payment Security Code. Please try again.</string>
+    <string name="fresh_install_banner_title">Fresh &amp; Secure Installation</string>
+    <string name="fresh_install_banner_desc">Zero-trust architecture initialized. End-to-end cryptographic keys generated in Android Keystore.</string>
+    <string name="e2ee_active_badge">End-to-End Encrypted</string>
+    <string name="bank_security_verified">RBI IFSC &amp; NPCI Standards Verified</string>
 </resources>

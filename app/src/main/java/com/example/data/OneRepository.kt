@@ -204,10 +204,20 @@ class OneRepository(
         bankDao.setDefaultBankAccount(accountId)
     }
 
-    suspend fun linkNewBankAccount(bankName: String, bankCode: String, accountNumberRaw: String, ifsc: String): BankAccount {
+    suspend fun linkNewBankAccount(
+        bankName: String,
+        bankCode: String,
+        accountNumberRaw: String,
+        ifsc: String,
+        customBalance: Double? = null,
+        setAsDefault: Boolean = false
+    ): BankAccount {
         val masked = SecurityManager.maskAccountNumber(accountNumberRaw)
         val handle = bankCode.lowercase()
         val generatedUpiId = "akash@$handle"
+        if (setAsDefault) {
+            bankDao.clearDefaultBankAccounts()
+        }
         val newAccount = BankAccount(
             id = "bank_${bankCode.lowercase()}_${System.currentTimeMillis()}",
             bankName = bankName,
@@ -216,12 +226,16 @@ class OneRepository(
             upiId = generatedUpiId,
             ifscPrefix = ifsc.uppercase(),
             accountType = "Savings",
-            isDefault = false,
-            balance = (10000..80000).random().toDouble(),
+            isDefault = setAsDefault,
+            balance = customBalance ?: (10000..80000).random().toDouble(),
             status = AccountStatus.ACTIVE
         )
         bankDao.insertBankAccount(newAccount)
         return newAccount
+    }
+
+    suspend fun updateAccountBalance(accountId: String, newBalance: Double) {
+        bankDao.updateBalance(accountId, newBalance)
     }
 
     suspend fun unlinkBankAccount(accountId: String) {

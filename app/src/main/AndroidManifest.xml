@@ -12,6 +12,23 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <package android:name="com.phonepe.app" />
+        <package android:name="net.one97.paytm" />
+        <package android:name="in.org.npci.upiapp" />
+        <package android:name="in.amazon.mShop.android.shopping" />
+        <package android:name="com.dreamplug.androidapp" />
+        <package android:name="com.csam.icici.bank.imobile" />
+        <package android:name="com.sbi.lotuszaap" />
+        <package android:name="com.snapwork.hdfc" />
+        <package android:name="com.axis.mobile" />
+    </queries>
+
     <application
         android:name=".OneApplication"
         android:allowBackup="true"

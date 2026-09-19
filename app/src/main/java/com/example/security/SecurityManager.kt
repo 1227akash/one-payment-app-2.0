@@ -233,4 +233,54 @@ object SecurityManager {
         } catch (_: Exception) {}
         return result
     }
+
+    /**
+     * Hashes a 6-digit payment security code with salted SHA-256 for tamper-proof storage.
+     */
+    fun hashPaymentPin(pin: String, salt: String = "ONE_PAYMENT_SALT_V1"): String {
+        val payload = "$salt:$pin:$salt"
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(payload.toByteArray(StandardCharsets.UTF_8))
+        return hash.joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * Verifies if the entered 6-digit PIN matches the stored encrypted hash.
+     */
+    fun verifyPaymentPin(enteredPin: String, storedHash: String, salt: String = "ONE_PAYMENT_SALT_V1"): Boolean {
+        if (enteredPin.length != 6) return false
+        val enteredHash = hashPaymentPin(enteredPin, salt)
+        return MessageDigest.isEqual(
+            enteredHash.toByteArray(StandardCharsets.UTF_8),
+            storedHash.toByteArray(StandardCharsets.UTF_8)
+        )
+    }
+
+    /**
+     * Encapsulates payment metadata into an End-to-End Encrypted (E2EE) cryptographic cipher token.
+     * Encrypted on-device using AES-256 GCM backed by Android KeyStore.
+     */
+    fun createEncryptedPaymentPayload(
+        sourceAccountId: String,
+        recipientIdentifier: String,
+        amount: Double,
+        utr: String,
+        pinVerified: Boolean
+    ): String {
+        val rawPayload = "$sourceAccountId|$recipientIdentifier|$amount|$utr|$pinVerified|${System.currentTimeMillis()}"
+        return encryptData(rawPayload)
+    }
+
+    /**
+     * Generates a unique secure transaction code for the user to verify against statement.
+     */
+    fun generateTransactionCode(): String {
+        val chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        val secureRandom = SecureRandom()
+        val sb = StringBuilder("TX-")
+        for (i in 0 until 8) {
+            sb.append(chars[secureRandom.nextInt(chars.length)])
+        }
+        return sb.toString()
+    }
 }

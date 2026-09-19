@@ -18,6 +18,9 @@ import com.example.model.PaymentStatus
 import com.example.model.Transaction
 import com.example.model.UserProfile
 import com.example.model.UserSession
+import com.example.network.BankBranchInfo
+import com.example.network.IfscLookupService
+import com.example.security.SecurityManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +28,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+sealed class IfscLookupUiState {
+    data object Idle : IfscLookupUiState()
+    data object Loading : IfscLookupUiState()
+    data class Success(val info: BankBranchInfo) : IfscLookupUiState()
+    data class Error(val message: String) : IfscLookupUiState()
+}
 
 enum class HistoryFilterTab {
     ALL, SENT, RECEIVED, PENDING, FAILED, REFUNDED
@@ -95,6 +105,10 @@ class OneViewModel(
     // Payment Draft & Execution State
     private val _paymentDraft = MutableStateFlow(PaymentDraft())
     val paymentDraft: StateFlow<PaymentDraft> = _paymentDraft.asStateFlow()
+
+    // Real IFSC live lookup state
+    private val _ifscLookupState = MutableStateFlow<IfscLookupUiState>(IfscLookupUiState.Idle)
+    val ifscLookupState: StateFlow<IfscLookupUiState> = _ifscLookupState.asStateFlow()
 
     // Smart Planner State
     private val _plannerAmount = MutableStateFlow("5000")
@@ -217,6 +231,38 @@ class OneViewModel(
         _paymentDraft.value = PaymentDraft(selectedAccount = defaultAcc)
     }
 
+    // Real UPI Execution & Result Handlers
+    fun recordRealUpiPaymentSuccess(txnId: String?, approvalRefNo: String?) {
+        val draft = _paymentDraft.value
+        val account = draft.selectedAccount ?: defaultAccount.value ?: bankAccounts.value.firstOrNull() ?: return
+        val parsedAmount = draft.amount.toDoubleOrNull() ?: 0.0
+
+        viewModelScope.launch {
+            val result = paymentService.recordRealUpiPayment(
+                sourceAccount = account,
+                recipientIdentifier = draft.recipientIdentifier,
+                recipientName = draft.recipientName,
+                amount = parsedAmount,
+                method = draft.method,
+                note = draft.note,
+                txnId = txnId,
+                approvalRefNo = approvalRefNo
+            )
+            _paymentDraft.value = _paymentDraft.value.copy(
+                isAuthorizing = false,
+                executionResult = result
+            )
+        }
+    }
+
+    fun recordRealUpiPaymentFailure(reason: String) {
+        val draft = _paymentDraft.value
+        _paymentDraft.value = draft.copy(
+            isAuthorizing = false,
+            executionResult = PaymentExecutionResult.Failed(reason, null)
+        )
+    }
+
     // Bank Account Management
     fun setDefaultAccount(accountId: String) {
         viewModelScope.launch {
@@ -224,9 +270,50 @@ class OneViewModel(
         }
     }
 
+    fun lookupIfsc(ifscCode: String) {
+        val clean = ifscCode.trim().uppercase()
+        if (clean.length < 11) {
+            _ifscLookupState.value = IfscLookupUiState.Idle
+            return
+        }
+        _ifscLookupState.value = IfscLookupUiState.Loading
+        viewModelScope.launch {
+            val result = IfscLookupService.lookupIfsc(clean)
+            result.onSuccess { info ->
+                _ifscLookupState.value = IfscLookupUiState.Success(info)
+            }.onFailure { err ->
+                _ifscLookupState.value = IfscLookupUiState.Error(err.message ?: "Failed to verify IFSC via RBI directory.")
+            }
+        }
+    }
+
+    fun resetIfscLookup() {
+        _ifscLookupState.value = IfscLookupUiState.Idle
+    }
+
     fun linkNewBankAccount(bankName: String, bankCode: String, rawAccountNumber: String, ifsc: String) {
         viewModelScope.launch {
             repository.linkNewBankAccount(bankName, bankCode, rawAccountNumber, ifsc)
+        }
+    }
+
+    fun linkRealBankAccount(
+        bankName: String,
+        bankCode: String,
+        rawAccountNumber: String,
+        ifsc: String,
+        customBalance: Double? = null,
+        setAsDefault: Boolean = false
+    ) {
+        viewModelScope.launch {
+            repository.linkNewBankAccount(
+                bankName = bankName,
+                bankCode = bankCode,
+                accountNumberRaw = rawAccountNumber,
+                ifsc = ifsc,
+                customBalance = customBalance,
+                setAsDefault = setAsDefault
+            )
         }
     }
 
@@ -255,6 +342,34 @@ class OneViewModel(
     }
 
     // Settings & Security
+    fun setPaymentSecurityCode(pin: String): Boolean {
+        if (pin.length != 6 || !pin.all { it.isDigit() }) return false
+        val hash = SecurityManager.hashPaymentPin(pin)
+        userProfile.value?.let { profile ->
+            viewModelScope.launch {
+                repository.updateUserProfile(profile.copy(paymentPinHash = hash))
+            }
+        }
+        return true
+    }
+
+    fun verifyPaymentSecurityCode(pin: String): Boolean {
+        val storedHash = userProfile.value?.paymentPinHash
+        if (storedHash.isNullOrEmpty()) {
+            // Default initial PIN for testing: "123456"
+            return pin == "123456"
+        }
+        return SecurityManager.verifyPaymentPin(pin, storedHash)
+    }
+
+    fun dismissFreshInstallBanner() {
+        userProfile.value?.let { profile ->
+            viewModelScope.launch {
+                repository.updateUserProfile(profile.copy(isFreshInstall = false))
+            }
+        }
+    }
+
     fun toggleBiometricLock(enabled: Boolean) {
         appLockEnabled.value = enabled
         userProfile.value?.let { profile ->

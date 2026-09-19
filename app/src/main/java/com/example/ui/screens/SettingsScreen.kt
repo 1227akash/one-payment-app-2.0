@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -40,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -57,6 +60,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,6 +87,10 @@ fun SettingsScreen(
     var showSessionsSheet by remember { mutableStateOf(false) }
     var showPrivacySheet by remember { mutableStateOf(false) }
     var showLicensesSheet by remember { mutableStateOf(false) }
+    var showPinDialog by remember { mutableStateOf(false) }
+    var newPinInput by remember { mutableStateOf("") }
+    var confirmPinInput by remember { mutableStateOf("") }
+    var pinDialogError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -263,6 +272,62 @@ fun SettingsScreen(
                                 checked = biometricEnabled,
                                 onCheckedChange = { viewModel.toggleBiometricLock(it) },
                                 modifier = Modifier.testTag("toggle_biometric_lock")
+                            )
+                        }
+
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+
+                        // Payment Security Code (Transaction PIN)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable {
+                                    newPinInput = ""
+                                    confirmPinInput = ""
+                                    pinDialogError = null
+                                    showPinDialog = true
+                                },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(BrandPrimary.copy(alpha = 0.12f))
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = BrandPrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        stringResource(R.string.payment_security_code_title),
+                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        stringResource(R.string.payment_security_code_desc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
@@ -677,5 +742,84 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    // Payment Security Code Configuration Dialog
+    if (showPinDialog) {
+        AlertDialog(
+            onDismissRequest = { showPinDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = BrandPrimary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (userProfile?.paymentPinHash.isNullOrEmpty())
+                            stringResource(R.string.set_payment_pin)
+                        else
+                            stringResource(R.string.change_payment_pin)
+                    )
+                }
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Set a 6-digit cryptographic security code to authorize all in-app money transfers. This PIN is hashed with salted SHA-256 and never leaves your secure device environment.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    OutlinedTextField(
+                        value = newPinInput,
+                        onValueChange = { if (it.length <= 6 && it.all { ch -> ch.isDigit() }) newPinInput = it },
+                        label = { Text("New 6-Digit PIN") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("new_pin_input")
+                    )
+
+                    OutlinedTextField(
+                        value = confirmPinInput,
+                        onValueChange = { if (it.length <= 6 && it.all { ch -> ch.isDigit() }) confirmPinInput = it },
+                        label = { Text("Confirm 6-Digit PIN") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("confirm_pin_input")
+                    )
+
+                    if (pinDialogError != null) {
+                        Text(
+                            text = pinDialogError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newPinInput.length != 6) {
+                            pinDialogError = "PIN must be exactly 6 numeric digits."
+                        } else if (newPinInput != confirmPinInput) {
+                            pinDialogError = "PINs do not match. Please re-enter."
+                        } else {
+                            viewModel.setPaymentSecurityCode(newPinInput)
+                            Toast.makeText(context, "Payment Security Code saved successfully!", Toast.LENGTH_SHORT).show()
+                            showPinDialog = false
+                        }
+                    },
+                    modifier = Modifier.testTag("save_pin_button")
+                ) {
+                    Text("Save PIN")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showPinDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

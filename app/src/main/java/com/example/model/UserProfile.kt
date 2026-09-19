@@ -14,6 +14,8 @@ data class UserProfile(
     val biometricEnabled: Boolean = true,
     val preferredLanguage: String = "en", // "en" or "hi"
     val themeMode: String = "SYSTEM", // "SYSTEM", "LIGHT", "DARK"
+    val paymentPinHash: String = "", // Salted SHA-256 hash of 6-digit payment security code
+    val isFreshInstall: Boolean = true, // Indicates freshly installed state
     val createdAt: Long = System.currentTimeMillis()
 )
 

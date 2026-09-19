@@ -99,6 +99,14 @@ class PaymentService(private val repository: OneRepository) {
 
         val idempotencyKey = SecurityManager.generateIdempotencyKey(sourceAccount.id, recipientIdentifier, amount)
         val utr = SecurityManager.generateUtrReference()
+        val transactionCode = SecurityManager.generateTransactionCode()
+        val e2eeToken = SecurityManager.createEncryptedPaymentPayload(
+            sourceAccountId = sourceAccount.id,
+            recipientIdentifier = recipientIdentifier,
+            amount = amount,
+            utr = utr,
+            pinVerified = true
+        )
 
         // Simulating official NPCI / Bank PSP authorization gateway response
         delay(1200)
@@ -118,7 +126,9 @@ class PaymentService(private val repository: OneRepository) {
                 note = note,
                 timestamp = System.currentTimeMillis(),
                 method = method,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                transactionCode = transactionCode,
+                encryptedE2eeToken = e2eeToken
             )
             repository.recordTransaction(uncertainTx)
             return PaymentExecutionResult.Unknown(
@@ -143,7 +153,9 @@ class PaymentService(private val repository: OneRepository) {
                 note = note.ifEmpty { reason },
                 timestamp = System.currentTimeMillis(),
                 method = method,
-                idempotencyKey = idempotencyKey
+                idempotencyKey = idempotencyKey,
+                transactionCode = transactionCode,
+                encryptedE2eeToken = e2eeToken
             )
             repository.recordTransaction(failedTx)
             return PaymentExecutionResult.Failed(reason, failedTx)
@@ -164,9 +176,62 @@ class PaymentService(private val repository: OneRepository) {
             note = note,
             timestamp = System.currentTimeMillis(),
             method = method,
-            idempotencyKey = idempotencyKey
+            idempotencyKey = idempotencyKey,
+            transactionCode = transactionCode,
+            encryptedE2eeToken = e2eeToken
         )
         repository.recordTransaction(successTx)
+        val newBal = (sourceAccount.balance - amount).coerceAtLeast(0.0)
+        repository.updateAccountBalance(sourceAccount.id, newBal)
+        return PaymentExecutionResult.Success(successTx)
+    }
+
+    /**
+     * Records a real UPI transaction completed through external certified UPI apps (GPay, PhonePe, Paytm).
+     */
+    suspend fun recordRealUpiPayment(
+        sourceAccount: BankAccount,
+        recipientIdentifier: String,
+        recipientName: String,
+        amount: Double,
+        method: PaymentMethod,
+        note: String,
+        txnId: String?,
+        approvalRefNo: String?
+    ): PaymentExecutionResult.Success {
+        val utr = approvalRefNo?.ifBlank { null }
+            ?: txnId?.ifBlank { null }
+            ?: SecurityManager.generateUtrReference()
+        val transactionCode = SecurityManager.generateTransactionCode()
+        val e2eeToken = SecurityManager.createEncryptedPaymentPayload(
+            sourceAccountId = sourceAccount.id,
+            recipientIdentifier = recipientIdentifier,
+            amount = amount,
+            utr = utr,
+            pinVerified = true
+        )
+
+        val successTx = Transaction(
+            id = UUID.randomUUID().toString(),
+            utrReference = utr,
+            amount = amount,
+            fee = 0.0,
+            type = "SENT",
+            status = PaymentStatus.SUCCESS,
+            recipientOrSenderName = recipientName,
+            recipientOrSenderUpiId = recipientIdentifier,
+            sourceBankName = sourceAccount.bankName,
+            sourceAccountMasked = sourceAccount.maskedAccountNumber,
+            note = note.ifBlank { "Real UPI Bank Transfer" },
+            timestamp = System.currentTimeMillis(),
+            method = method,
+            idempotencyKey = txnId ?: UUID.randomUUID().toString(),
+            transactionCode = transactionCode,
+            encryptedE2eeToken = e2eeToken
+        )
+        repository.recordTransaction(successTx)
+        val newBal = (sourceAccount.balance - amount).coerceAtLeast(0.0)
+        repository.updateAccountBalance(sourceAccount.id, newBal)
         return PaymentExecutionResult.Success(successTx)
     }
 

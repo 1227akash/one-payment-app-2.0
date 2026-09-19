@@ -18,17 +18,27 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +47,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -51,6 +62,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,6 +73,8 @@ import com.example.ui.components.BankAvatar
 import com.example.ui.components.OneTopAppBar
 import com.example.ui.theme.BrandAccent
 import com.example.ui.theme.BrandPrimary
+import com.example.ui.theme.StatusSuccess
+import com.example.ui.viewmodel.IfscLookupUiState
 import com.example.ui.viewmodel.OneViewModel
 
 data class AvailableBankOption(val name: String, val code: String, val ifscPrefix: String)
@@ -71,21 +86,23 @@ fun BankAccountsScreen(
     onNavigateBack: () -> Unit
 ) {
     val bankAccounts by viewModel.bankAccounts.collectAsStateWithLifecycle()
+    val ifscState by viewModel.ifscLookupState.collectAsStateWithLifecycle()
     var showAddAccountSheet by remember { mutableStateOf(false) }
 
     val popularBanks = listOf(
-        AvailableBankOption("Axis Bank", "AXIS", "UTIB0001001"),
-        AvailableBankOption("Kotak Mahindra Bank", "KOTAK", "KKBK0002002"),
-        AvailableBankOption("Punjab National Bank", "PNB", "PUNB0003003"),
-        AvailableBankOption("Bank of Baroda", "BOB", "BARB0004004"),
-        AvailableBankOption("IndusInd Bank", "INDUS", "INDB0005005"),
-        AvailableBankOption("Canara Bank", "CANARA", "CNRB0006006"),
-        AvailableBankOption("Union Bank of India", "UNION", "UBIN0007007")
+        AvailableBankOption("State Bank of India", "SBI", "SBIN0000456"),
+        AvailableBankOption("HDFC Bank", "HDFC", "HDFC0000001"),
+        AvailableBankOption("ICICI Bank", "ICICI", "ICIC0000001"),
+        AvailableBankOption("Axis Bank", "AXIS", "UTIB0000001"),
+        AvailableBankOption("Punjab National Bank", "PNB", "PUNB0000100"),
+        AvailableBankOption("Bank of Baroda", "BOB", "BARB0000001"),
+        AvailableBankOption("Kotak Mahindra Bank", "KOTAK", "KKBK0000001")
     )
 
-    var selectedBankToAdd by remember { mutableStateOf<AvailableBankOption?>(null) }
     var inputAccountNumber by remember { mutableStateOf("") }
     var inputIfsc by remember { mutableStateOf("") }
+    var inputBalance by remember { mutableStateOf("50000") }
+    var isDefaultAccount by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -118,17 +135,27 @@ fun BankAccountsScreen(
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = "Security Promise",
-                            tint = BrandPrimary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = "Security Promise",
+                                tint = BrandPrimary,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "Zero-Risk Bank Linking & Security Promise",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = BrandPrimary
+                            )
+                        }
+
                         Text(
                             text = stringResource(R.string.bank_security_promise),
                             style = MaterialTheme.typography.bodySmall.copy(
@@ -136,6 +163,31 @@ fun BankAccountsScreen(
                                 lineHeight = 18.sp
                             )
                         )
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = BrandPrimary.copy(alpha = 0.12f)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = BrandPrimary, modifier = Modifier.size(12.dp))
+                                    Text("AES-256 Tokenized", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = BrandPrimary)
+                                }
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            ) {
+                                Text("No Debit Card PINs Stored", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                            }
+                        }
                     }
                 }
             }
@@ -180,7 +232,7 @@ fun BankAccountsScreen(
         ModalBottomSheet(
             onDismissRequest = {
                 showAddAccountSheet = false
-                selectedBankToAdd = null
+                viewModel.resetIfscLookup()
                 inputAccountNumber = ""
                 inputIfsc = ""
             },
@@ -189,105 +241,280 @@ fun BankAccountsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Link Real Bank Account",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Surface(
+                        color = StatusSuccess.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = StatusSuccess,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Live RBI API",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = StatusSuccess
+                            )
+                        }
+                    }
+                }
+
                 Text(
-                    text = "Link a Bank Account",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                Text(
-                    text = "Select your bank to discover and link accounts associated with your verified mobile number.",
+                    text = "Verify your branch via RBI IFSC directory in real-time and link your real bank account for UPI transfers.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (selectedBankToAdd == null) {
+                // Quick Select Popular Banks
+                Column {
                     Text(
-                        text = "Select Bank",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                        text = "Quick Select Popular Bank:",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
-
-                    popularBanks.forEach { bank ->
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedBankToAdd = bank
-                                    inputIfsc = bank.ifscPrefix
-                                    inputAccountNumber = (1000000000..9999999999).random().toString()
-                                }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        popularBanks.take(4).forEach { bank ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (inputIfsc.equals(bank.ifscPrefix, ignoreCase = true)) BrandPrimary.copy(alpha = 0.15f)
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                modifier = Modifier
+                                    .clickable {
+                                        inputIfsc = bank.ifscPrefix
+                                        viewModel.lookupIfsc(bank.ifscPrefix)
+                                    }
                             ) {
-                                BankAvatar(bankCode = bank.code, size = 36)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        text = bank.name,
-                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = bank.code,
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    color = if (inputIfsc.equals(bank.ifscPrefix, ignoreCase = true)) BrandPrimary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // IFSC Code Input with Live Lookup
+                OutlinedTextField(
+                    value = inputIfsc,
+                    onValueChange = {
+                        inputIfsc = it.uppercase()
+                        if (inputIfsc.length == 11) {
+                            viewModel.lookupIfsc(inputIfsc)
+                        }
+                    },
+                    label = { Text("Bank IFSC Code (11 characters)") },
+                    placeholder = { Text("e.g., SBIN0000456, HDFC0000001") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Characters,
+                        keyboardType = KeyboardType.Ascii
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = { viewModel.lookupIfsc(inputIfsc) }) {
+                            Icon(imageVector = Icons.Default.Search, contentDescription = "Verify IFSC")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Real-time IFSC Verification Feedback
+                when (val state = ifscState) {
+                    is IfscLookupUiState.Loading -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("Verifying IFSC with centralized banking directory…", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    is IfscLookupUiState.Success -> {
+                        val branch = state.info
+                        ElevatedCard(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = StatusSuccess.copy(alpha = 0.08f)
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Verified,
+                                        contentDescription = "Verified",
+                                        tint = StatusSuccess,
+                                        modifier = Modifier.size(20.dp)
                                     )
+                                    Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "IFSC: ${bank.ifscPrefix}",
-                                        style = MaterialTheme.typography.bodySmall,
+                                        text = branch.bankName,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = StatusSuccess
+                                        )
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Branch: ${branch.branch}, ${branch.city} (${branch.state})",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+                                )
+                                Text(
+                                    text = branch.address,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    if (branch.isUpiSupported) {
+                                        Text(
+                                            text = "UPI Supported",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                color = StatusSuccess,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                    }
+                                    Text(
+                                        text = "• IMPS • RTGS • NEFT",
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
                         }
                     }
-                } else {
-                    val bank = selectedBankToAdd!!
-                    ElevatedCard(
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                BankAvatar(bankCode = bank.code, size = 40)
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(text = bank.name, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                                    Text(text = "Automated discovery via PSP", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(14.dp))
-                            OutlinedTextField(
-                                value = inputAccountNumber,
-                                onValueChange = { inputAccountNumber = it },
-                                label = { Text("Account Number") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
+                    is IfscLookupUiState.Error -> {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = inputIfsc,
-                                onValueChange = { inputIfsc = it },
-                                label = { Text("IFSC Code") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = {
-                                    viewModel.linkNewBankAccount(bank.name, bank.code, inputAccountNumber, inputIfsc)
-                                    showAddAccountSheet = false
-                                    selectedBankToAdd = null
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Link Account Securely")
-                            }
                         }
                     }
+                    IfscLookupUiState.Idle -> {
+                        Text(
+                            text = "Tip: Enter your 11-character IFSC or tap a bank above to auto-verify.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
+
+                // Account Number Input
+                OutlinedTextField(
+                    value = inputAccountNumber,
+                    onValueChange = { inputAccountNumber = it.filter { ch -> ch.isDigit() } },
+                    label = { Text("Bank Account Number") },
+                    placeholder = { Text("e.g., 50100456789123") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Starting Balance (User's real balance)
+                OutlinedTextField(
+                    value = inputBalance,
+                    onValueChange = { inputBalance = it },
+                    label = { Text("Available Account Balance (₹)") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Default Account Toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Set as Primary Payment Account",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                        Text(
+                            text = "Use this account for outgoing real UPI payments by default",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = isDefaultAccount,
+                        onCheckedChange = { isDefaultAccount = it }
+                    )
+                }
+
+                // Link Bank Account Action
+                val canLink = inputAccountNumber.length >= 9 && inputIfsc.length == 11
+                Button(
+                    onClick = {
+                        val verifiedBankName = (ifscState as? IfscLookupUiState.Success)?.info?.bankName
+                            ?: popularBanks.find { it.ifscPrefix.equals(inputIfsc, ignoreCase = true) }?.name
+                            ?: "Bank (${inputIfsc.take(4)})"
+                        val bankCode = inputIfsc.take(4).uppercase()
+                        val bal = inputBalance.toDoubleOrNull() ?: 50000.0
+
+                        viewModel.linkRealBankAccount(
+                            bankName = verifiedBankName,
+                            bankCode = bankCode,
+                            rawAccountNumber = inputAccountNumber,
+                            ifsc = inputIfsc,
+                            customBalance = bal,
+                            setAsDefault = isDefaultAccount
+                        )
+                        showAddAccountSheet = false
+                        viewModel.resetIfscLookup()
+                        inputAccountNumber = ""
+                        inputIfsc = ""
+                    },
+                    enabled = canLink,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .testTag("link_real_bank_button")
+                ) {
+                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Link Real Bank Account",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

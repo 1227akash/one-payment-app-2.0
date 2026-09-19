@@ -18,5 +18,7 @@ data class Transaction(
     val note: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val method: PaymentMethod,
-    val idempotencyKey: String = ""
+    val idempotencyKey: String = "",
+    val transactionCode: String = "",
+    val encryptedE2eeToken: String = ""
 )
