@@ -81,4 +81,38 @@ class PlannerAndCalculatorTest {
         assertEquals(295.0, result.totalFee, 0.001)
         assertEquals(50295.0, result.customerPayableTotal, 0.001)
     }
+
+    @Test
+    fun testPlanExecutionResultModel() {
+        val tranches = listOf(
+            com.example.model.PlanTrancheExecution(
+                trancheIndex = 1,
+                amount = 2500.0,
+                bankName = "HDFC Bank",
+                maskedAccount = "XXXX 4582",
+                utr = "123456789012",
+                transactionCode = "TXC-ABC12345"
+            ),
+            com.example.model.PlanTrancheExecution(
+                trancheIndex = 2,
+                amount = 2500.0,
+                bankName = "SBI",
+                maskedAccount = "XXXX 9217",
+                utr = "123456789013",
+                transactionCode = "TXC-ABC12346"
+            )
+        )
+        val executionResult = com.example.model.PlanExecutionResult(
+            totalAmount = 5000.0,
+            recipient = "merchant@upi",
+            note = "Planned Split Payment",
+            tranches = tranches,
+            singlePinAuthorized = true
+        )
+
+        assertEquals(5000.0, executionResult.totalAmount, 0.001)
+        assertEquals(2, executionResult.tranches.size)
+        assertTrue(executionResult.singlePinAuthorized)
+        assertTrue(executionResult.isSuccess)
+    }
 }

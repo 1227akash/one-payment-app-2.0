@@ -15,12 +15,15 @@ import com.example.model.PaymentInstrument
 import com.example.model.PaymentMethod
 import com.example.model.PaymentPlanResult
 import com.example.model.PaymentStatus
+import com.example.model.PlanExecutionResult
+import com.example.model.PlanTrancheExecution
 import com.example.model.Transaction
 import com.example.model.UserProfile
 import com.example.model.UserSession
 import com.example.network.BankBranchInfo
 import com.example.network.IfscLookupService
 import com.example.security.SecurityManager
+import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -116,6 +119,12 @@ class OneViewModel(
 
     private val _plannerResult = MutableStateFlow<PaymentPlanResult?>(null)
     val plannerResult: StateFlow<PaymentPlanResult?> = _plannerResult.asStateFlow()
+
+    val planRecipient = MutableStateFlow("merchant@upi")
+    val planNote = MutableStateFlow("Smart Planned Split Settlement")
+    private val _planExecutionResult = MutableStateFlow<PlanExecutionResult?>(null)
+    val planExecutionResult: StateFlow<PlanExecutionResult?> = _planExecutionResult.asStateFlow()
+    val isPlanExecuting = MutableStateFlow(false)
 
     // Charge Calculator State
     val calcAmount = MutableStateFlow("2500")
@@ -339,6 +348,113 @@ class OneViewModel(
         val amount = amountStr.toDoubleOrNull() ?: 0.0
         val plan = plannerService.createPaymentPlan(amount, bankAccounts.value)
         _plannerResult.value = plan
+    }
+
+    fun updatePlanRecipient(recipient: String) {
+        planRecipient.value = recipient
+    }
+
+    fun updatePlanNote(note: String) {
+        planNote.value = note
+    }
+
+    fun clearPlanExecutionResult() {
+        _planExecutionResult.value = null
+    }
+
+    fun executeSmartPlanInOneGo(
+        enteredPin: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        if (!verifyPaymentSecurityCode(enteredPin)) {
+            onError("Incorrect Payment Security Code. Please try again.")
+            return
+        }
+
+        val plan = plannerResult.value
+        if (plan == null || plan.splits.isEmpty() || plan.totalAmount <= 0.0) {
+            onError("No active payment plan to execute.")
+            return
+        }
+
+        val recipient = planRecipient.value.trim().ifBlank { "merchant@upi" }
+        val note = planNote.value.trim().ifBlank { "Smart Planned Split Payment" }
+
+        viewModelScope.launch {
+            isPlanExecuting.value = true
+            val executedTranches = mutableListOf<PlanTrancheExecution>()
+            val accountsList = bankAccounts.value
+
+            for (split in plan.splits) {
+                val targetAccount = split.bankAccount?.let { acc ->
+                    accountsList.find { it.id == acc.id }
+                } ?: defaultAccount.value ?: accountsList.firstOrNull()
+
+                val bankName = targetAccount?.bankName ?: "Linked Bank Account"
+                val maskedAcc = targetAccount?.maskedAccountNumber ?: "XXXX XXXX 1234"
+                val utr = SecurityManager.generateUtrReference()
+                val txCode = SecurityManager.generateTransactionCode()
+                val encryptedPayload = SecurityManager.createEncryptedPaymentPayload(
+                    sourceAccountId = targetAccount?.id ?: "unknown",
+                    recipientIdentifier = recipient,
+                    amount = split.amount,
+                    utr = utr,
+                    pinVerified = true
+                )
+
+                val transaction = Transaction(
+                    id = UUID.randomUUID().toString(),
+                    utrReference = utr,
+                    transactionCode = txCode,
+                    encryptedE2eeToken = encryptedPayload,
+                    amount = split.amount,
+                    fee = 0.0,
+                    type = "SENT",
+                    status = PaymentStatus.SUCCESS,
+                    recipientOrSenderName = "Planned Split • $recipient",
+                    recipientOrSenderUpiId = recipient,
+                    sourceBankName = bankName,
+                    sourceAccountMasked = maskedAcc,
+                    note = "Tranche #${split.trancheIndex} of ${plan.splits.size}: $note",
+                    timestamp = System.currentTimeMillis(),
+                    method = PaymentMethod.UPI_ID
+                )
+
+                targetAccount?.let { acc ->
+                    val newBal = (acc.balance - split.amount).coerceAtLeast(0.0)
+                    repository.updateAccountBalance(acc.id, newBal)
+                }
+
+                repository.recordTransaction(transaction)
+
+                executedTranches.add(
+                    PlanTrancheExecution(
+                        trancheIndex = split.trancheIndex,
+                        amount = split.amount,
+                        bankName = bankName,
+                        maskedAccount = maskedAcc,
+                        utr = utr,
+                        transactionCode = txCode,
+                        status = PaymentStatus.SUCCESS
+                    )
+                )
+            }
+
+            val result = PlanExecutionResult(
+                totalAmount = plan.totalAmount,
+                recipient = recipient,
+                note = note,
+                tranches = executedTranches,
+                timestamp = System.currentTimeMillis(),
+                isSuccess = true,
+                singlePinAuthorized = true
+            )
+
+            _planExecutionResult.value = result
+            isPlanExecuting.value = false
+            onSuccess()
+        }
     }
 
     // Settings & Security

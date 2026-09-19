@@ -4,6 +4,7 @@
     <string name="good_morning">Good morning</string>
     <string name="good_afternoon">Good afternoon</string>
     <string name="good_evening">Good evening</string>
+    <string name="good_night">Good night</string>
 
     <!-- Navigation & Core Actions -->
     <string name="action_scan_pay">Scan &amp; Pay</string>
@@ -147,4 +148,15 @@
     <string name="fresh_install_banner_desc">Zero-trust architecture initialized. End-to-end cryptographic keys generated in Android Keystore.</string>
     <string name="e2ee_active_badge">End-to-End Encrypted</string>
     <string name="bank_security_verified">RBI IFSC &amp; NPCI Standards Verified</string>
+
+    <!-- Smart Planner In-One-Go Execution -->
+    <string name="pay_all_splits_button">Authorize &amp; Pay All Parts in One Go</string>
+    <string name="pay_all_splits_subtitle">Pay all planned tranches instantly with a single 6-digit PIN</string>
+    <string name="plan_recipient_label">Beneficiary / Merchant Identifier</string>
+    <string name="plan_note_label">Payment Note (Optional)</string>
+    <string name="single_pin_auth_title">Single PIN Authorization</string>
+    <string name="single_pin_auth_desc">Enter your 6-digit Payment Security Code once. All %1$d transactions will be verified and paid in one go across your linked bank accounts.</string>
+    <string name="plan_paid_success_title">All Parts Paid Successfully!</string>
+    <string name="plan_paid_success_desc">All %1$d tranches have been settled in one go using single-PIN cryptographic authorization.</string>
+    <string name="tranche_paid_status">Paid in One Go</string>
 </resources>

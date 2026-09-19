@@ -15,3 +15,23 @@ data class PaymentPlanResult(
     val providerNote: String,
     val statutoryDisclaimer: String = "Splitting a payment does not guarantee that applicable charges will be avoided."
 )
+
+data class PlanTrancheExecution(
+    val trancheIndex: Int,
+    val amount: Double,
+    val bankName: String,
+    val maskedAccount: String,
+    val utr: String,
+    val transactionCode: String,
+    val status: PaymentStatus = PaymentStatus.SUCCESS
+)
+
+data class PlanExecutionResult(
+    val totalAmount: Double,
+    val recipient: String,
+    val note: String,
+    val tranches: List<PlanTrancheExecution>,
+    val timestamp: Long = System.currentTimeMillis(),
+    val isSuccess: Boolean = true,
+    val singlePinAuthorized: Boolean = true
+)

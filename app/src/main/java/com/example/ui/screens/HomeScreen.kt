@@ -72,6 +72,17 @@ import com.example.ui.theme.BrandPrimary
 import com.example.ui.theme.BrandSecondary
 import com.example.ui.theme.StatusSuccess
 import com.example.ui.viewmodel.OneViewModel
+import java.util.Calendar
+
+private fun getTimeBasedGreetingResId(): Int {
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when (hour) {
+        in 5..11 -> R.string.good_morning
+        in 12..16 -> R.string.good_afternoon
+        in 17..21 -> R.string.good_evening
+        else -> R.string.good_night
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,7 +136,7 @@ fun HomeScreen(
                             )
                         }
                         Text(
-                            text = "${stringResource(R.string.good_morning)}, ${userProfile?.displayName?.split(" ")?.firstOrNull() ?: "User"} 👋",
+                            text = "${stringResource(getTimeBasedGreetingResId())}, ${userProfile?.displayName?.split(" ")?.firstOrNull() ?: "User"} 👋",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.Medium

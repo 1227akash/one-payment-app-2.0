@@ -5,6 +5,7 @@
     <string name="good_morning">शुभ प्रभात</string>
     <string name="good_afternoon">शुभ दोपहर</string>
     <string name="good_evening">शुभ संध्या</string>
+    <string name="good_night">शुभ रात्रि</string>
 
     <!-- Navigation & Core Actions -->
     <string name="action_scan_pay">स्कैन और भुगतान</string>
@@ -134,4 +135,15 @@
     <string name="cd_copy">कॉपी करें</string>
     <string name="cd_share">साझा करें</string>
     <string name="cd_status_icon">लेनदेन स्थिति आइकन</string>
+
+    <!-- Smart Planner In-One-Go Execution -->
+    <string name="pay_all_splits_button">एक साथ सभी भागों का भुगतान करें</string>
+    <string name="pay_all_splits_subtitle">एकल 6-अंकीय पिन के साथ सभी योजनाबद्ध किश्तों का तुरंत भुगतान करें</string>
+    <string name="plan_recipient_label">लाभार्थी / मर्चेंट पहचानकर्ता</string>
+    <string name="plan_note_label">भुगतान नोट (वैकल्पिक)</string>
+    <string name="single_pin_auth_title">एकल पिन प्रमाणीकरण</string>
+    <string name="single_pin_auth_desc">अपना 6-अंकीय भुगतान सुरक्षा कोड केवल एक बार दर्ज करें। सभी %1$d लेनदेन आपके लिंक किए गए बैंक खातों से एक साथ सत्यापित और भुगतान किए जाएंगे।</string>
+    <string name="plan_paid_success_title">सभी भागों का भुगतान सफलतापूर्वक हुआ!</string>
+    <string name="plan_paid_success_desc">एकल-पिन क्रिप्टोग्राफ़िक प्रमाणीकरण का उपयोग करके सभी %1$d किश्तें एक बार में चुका दी गई हैं।</string>
+    <string name="tranche_paid_status">एक साथ भुगतान किया गया</string>
 </resources>
