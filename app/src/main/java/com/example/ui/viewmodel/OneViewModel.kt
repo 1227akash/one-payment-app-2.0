@@ -106,7 +106,7 @@ class OneViewModel(
     // Charge Calculator State
     val calcAmount = MutableStateFlow("2500")
     val calcCategory = MutableStateFlow(MerchantCategory.LARGE_MERCHANT)
-    val calcInstrument = MutableStateFlow(PaymentInstrument.BANK_UPI)
+    val calcInstrument = MutableStateFlow(PaymentInstrument.RUPAY_CREDIT)
     val calcResult: StateFlow<MdrCalculation> = combine(
         calcAmount,
         calcCategory,
@@ -117,7 +117,7 @@ class OneViewModel(
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        calculatorService.calculate(2500.0, MerchantCategory.LARGE_MERCHANT, PaymentInstrument.BANK_UPI)
+        calculatorService.calculate(2500.0, MerchantCategory.LARGE_MERCHANT, PaymentInstrument.RUPAY_CREDIT)
     )
 
     // Auth State

@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -119,18 +120,6 @@ fun HomeScreen(
                                     letterSpacing = 1.sp
                                 )
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Surface(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text(
-                                    text = "BHIM UPI",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
                         }
                         Text(
                             text = "${stringResource(R.string.good_morning)}, ${userProfile?.displayName?.split(" ")?.firstOrNull() ?: "User"} 👋",
@@ -380,22 +369,31 @@ fun DefaultBankCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    BankAvatar(bankCode = account?.bankCode ?: "HDFC", size = 36)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    BankAvatar(bankCode = account?.bankCode ?: "HDFC", size = 38)
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = account?.bankName ?: "Link Bank Account",
                             color = Color.White,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = account?.maskedAccountNumber ?: "No bank account linked",
                             color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Surface(
                     color = BrandAccent.copy(alpha = 0.2f),
@@ -486,16 +484,16 @@ fun ActionCard(
             .clip(RoundedCornerShape(16.dp))
             .testTag(testTag)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(42.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(color.copy(alpha = 0.12f))
             ) {
@@ -503,21 +501,26 @@ fun ActionCard(
                     imageVector = icon,
                     contentDescription = title,
                     tint = color,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -546,24 +549,39 @@ fun TransactionRowItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                BankAvatar(bankCode = transaction.sourceBankName.take(4), size = 40)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                BankAvatar(bankCode = transaction.sourceBankName.take(4), size = 42)
                 Spacer(modifier = Modifier.width(12.dp))
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
                     Text(
                         text = transaction.recipientOrSenderName,
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = "${transaction.method.displayName} • ${transaction.sourceBankName}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
-            Column(horizontalAlignment = Alignment.End) {
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 val isReceived = transaction.type == "RECEIVED"
                 val prefix = if (isReceived) "+ " else "- "
                 val amountColor = if (isReceived) StatusSuccess else MaterialTheme.colorScheme.onSurface
@@ -573,9 +591,9 @@ fun TransactionRowItem(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = amountColor
-                    )
+                    ),
+                    maxLines = 1
                 )
-                Spacer(modifier = Modifier.height(2.dp))
                 StatusChip(status = transaction.status)
             }
         }

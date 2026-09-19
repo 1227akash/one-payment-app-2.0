@@ -234,27 +234,52 @@ fun ChargeCalculatorScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(
-                            text = "Regulatory Charge Breakdown",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Regulatory Charge Breakdown",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Surface(
+                                color = BrandPrimary.copy(alpha = 0.12f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    text = "GST 18% Applicable",
+                                    color = BrandPrimary,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
 
-                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
 
                         SummaryRow(label = "Principal Amount", value = "₹%,.2f".format(calcResult.amount))
-                        SummaryRow(label = "Base MDR Rate", value = "${calcResult.ratePercentage}%")
-                        SummaryRow(label = "Interchange / Base Fee", value = "₹%,.2f".format(calcResult.baseCharge))
-                        SummaryRow(label = "GST on Fee (18%)", value = "₹%,.2f".format(calcResult.gstAmount))
-                        if (calcResult.maxCap != null) {
-                            SummaryRow(label = "Statutory Fee Cap", value = "₹%,.2f".format(calcResult.maxCap!!))
-                        }
+                        SummaryRow(label = "Applicable MDR Rate", value = "${calcResult.ratePercentage}%", isBold = true)
+                        SummaryRow(label = "Base MDR / Interchange Fee", value = "₹%,.2f".format(calcResult.baseCharge))
+                        SummaryRow(label = "Statutory GST Rate", value = "${calcResult.gstRatePercentage}% (CGST + SGST)", isBold = true)
+                        SummaryRow(label = "GST on Processing Fee", value = "₹%,.2f".format(calcResult.gstAmount))
                         SummaryRow(
-                            label = "Total Regulatory Fee",
+                            label = "Statutory Fee Cap",
+                            value = calcResult.maxCap?.let { "₹%,.2f".format(it) } ?: "Not Applicable"
+                        )
+                        SummaryRow(
+                            label = "Total Regulatory Deduction",
                             value = "₹%,.2f".format(calcResult.totalFee),
                             isBold = true
                         )
 
-                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+
+                        SummaryRow(
+                            label = "Net Merchant Settlement",
+                            value = "₹%,.2f".format(calcResult.netMerchantSettlement),
+                            isBold = true
+                        )
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -281,7 +306,7 @@ fun ChargeCalculatorScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Zero Fee Mandate: Standard Bank-to-Bank UPI is free under government guidelines.",
+                                    text = "Zero Fee Mandate: Standard Bank-to-Bank UPI is 0% MDR under Section 10A of the PSS Act.",
                                     color = Color(0xFF065F46),
                                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
                                     modifier = Modifier.padding(10.dp)
@@ -290,6 +315,93 @@ fun ChargeCalculatorScreen(
                         }
                     }
                 }
+            }
+
+            // Benchmark Rates Table Card
+            item {
+                ElevatedCard(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Official MDR & GST Benchmark Schedule",
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+                        )
+                        Text(
+                            text = "Statutory rates prescribed by NPCI & RBI guidelines with 18% GST on processing fees:",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        RateRow(instrument = "RuPay Credit Card on UPI", mdr = "1.40%", gst = "18%", cap = "₹150 (Txn > ₹2K)")
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        RateRow(instrument = "Prepaid Wallets (PPI on UPI)", mdr = "1.10%", gst = "18%", cap = "₹250 (Txn > ₹2K)")
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        RateRow(instrument = "Standard Merchant (P2M)", mdr = "0.90%", gst = "18%", cap = "₹100.00")
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        RateRow(instrument = "Utility & Telecom Bills", mdr = "0.70%", gst = "18%", cap = "₹75.00")
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        RateRow(instrument = "Fuel & Govt Payments", mdr = "0.50%", gst = "18%", cap = "₹50.00")
+                        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        RateRow(instrument = "Bank Account (P2P / UPI)", mdr = "0.00%", gst = "0%", cap = "Zero Fee")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RateRow(instrument: String, mdr: String, gst: String, cap: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = instrument,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Cap: $cap",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                color = BrandPrimary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text(
+                    text = "MDR: $mdr",
+                    color = BrandPrimary,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                )
+            }
+            Surface(
+                color = BrandAccent.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text(
+                    text = "GST: $gst",
+                    color = BrandAccent,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                )
             }
         }
     }

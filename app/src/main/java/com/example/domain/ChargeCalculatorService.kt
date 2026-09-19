@@ -65,11 +65,13 @@ class ChargeCalculatorService {
             instrument = instrument,
             ratePercentage = (rate * 100).roundTwoDecimals(),
             baseCharge = baseCharge.roundTwoDecimals(),
+            gstRatePercentage = 18.0,
             gstAmount = gstAmount.roundTwoDecimals(),
             totalFee = totalFee,
             maxCap = maxCap,
             isCapped = isCapped,
-            customerPayableTotal = customerPayable
+            customerPayableTotal = customerPayable,
+            netMerchantSettlement = ((amount - totalFee).coerceAtLeast(0.0)).roundTwoDecimals()
         )
     }
 
